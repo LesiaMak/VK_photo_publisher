@@ -42,12 +42,13 @@ def get_server_link(token, group_id):
     }
     response = requests.get(path, params=payloads,  verify=False)
     response.raise_for_status()
+    server_answer = response.json()
 
-    return response.json()
+    return server_answer['response']['upload_url']
 
 
 def upload_photo_to_server_VK(file_link, token, group_id):
-    path = get_server_link(token, group_id)['response']['upload_url']
+    path = get_server_link(token, group_id)
     with open(file_link, 'rb') as file:
         files = {
             'photo': file,
