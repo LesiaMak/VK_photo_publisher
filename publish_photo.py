@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-def read_json(path, payloads = None):
+def get_comic_path(path, payloads = None):
     response = requests.get(path, params=payloads,  verify=False)
     response.raise_for_status()
     comics_text = response.json()
@@ -74,7 +74,7 @@ def publish_photo_on_the_VK_wall(token, group_id, photo_owner_id, id, num):
         'access_token': token,
         'owner_id': -group_id,
         'from_group': 1,
-        'message': read_json(f'https://xkcd.com/{num}/info.0.json')[1],
+        'message': get_comic_path(f'https://xkcd.com/{num}/info.0.json')[1],
         'attachments': f'photo{photo_owner_id}_{id}',
         'v': 5.154, 
     }
@@ -89,7 +89,7 @@ def main():
     VK_token = os.environ['ACCESS_TOKEN']
     group_ID = os.environ['GROUP_ID']
     num = random.randint(1,2842)
-    download_images(read_json(f'https://xkcd.com/{num}/info.0.json')[0], 'comics', f'comic{num}.png')
+    download_images(get_comic_path(f'https://xkcd.com/{num}/info.0.json')[0], 'comics', f'comic{num}.png')
     server_answer = upload_photo_to_server_VK(f'comics/comic{num}.png', VK_token, group_ID)
     VK_answer = safe_photo_in_album(server_answer['photo'], server_answer['hash'], VK_token, group_ID)
     publish_photo_on_the_VK_wall(VK_token, group_ID, VK_answer['owner_id'], VK_answer['id'], num)
