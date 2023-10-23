@@ -18,14 +18,17 @@ def get_comic_path(path, payloads = None):
     comment_path = comics_text['alt']
     return comic_path, comment_path
     
-
-def download_images(image_url, save_path, image_name, payloads = None):
-    os.makedirs(Path('.',save_path), exist_ok=True)
+def get_image(image_url, payloads = None):
     response = requests.get(image_url, params=payloads,  verify=False)
     response.raise_for_status()
+    return response
+
+
+def download_images(image_url, save_path, image_name):
+    os.makedirs(Path('.',save_path), exist_ok=True)
     filename = sanitize_filepath(os.path.join(save_path, f'{image_name}'))
     with open(filename, 'wb') as file:
-        file.write(response.content)
+        file.write(get_image(image_url).content)
 
 
 def get_server_link(token, group_id): 
