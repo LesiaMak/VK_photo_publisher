@@ -90,16 +90,16 @@ def publish_photo_on_the_VK_wall(token, group_id, photo_owner_id, id, num, messa
 
 def main():
     load_dotenv()
-    VK_TOKEN = os.environ['ACCESS_TOKEN']
-    group_ID = os.environ['GROUP_ID']
+    VK_TOKEN = os.environ['VK_ACCESS_TOKEN']
+    GROUP_ID = os.environ['VK_GROUP_ID']
     last_comic_number = 2842
     num = random.randint(1, last_comic_number)
     comic_paths = get_comic_path(f'https://xkcd.com/{num}/info.0.json')
     comic_path, comment = comic_paths
     download_images(comic_path, 'comics', f'comic{num}.png')
-    server_answer = upload_photo_to_server_VK(f'comics/comic{num}.png', VK_TOKEN, group_ID)
-    VK_answer = save_photo_in_album(server_answer['photo'], server_answer['hash'], VK_TOKEN, group_ID)
-    publish_photo_on_the_VK_wall(VK_TOKEN, group_ID, VK_answer['owner_id'], VK_answer['id'], num, comment)
+    server_answer = upload_photo_to_server_VK(f'comics/comic{num}.png', VK_TOKEN, GROUP_ID)
+    vk_answer = save_photo_in_album(server_answer['photo'], server_answer['hash'], VK_TOKEN, GROUP_ID)
+    publish_photo_on_the_VK_wall(VK_TOKEN, GROUP_ID, vk_answer['owner_id'], vk_answer['id'], num, comment)
     os.remove(f'comics/comic{num}.png')
 
 
