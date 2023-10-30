@@ -58,13 +58,13 @@ def upload_photo_to_server_VK(file_link, token, group_id):
     return response.json()
 
 
-def save_photo_in_album(server_photo_link, hash, token, group_id):
+def save_photo_in_album(server_photo_link, server_answer_hash, token, group_id):
     path = 'https://api.vk.com/method/photos.saveWallPhoto'
     payloads = {
         'access_token': token,
         'group_id': group_id,
         'photo':  server_photo_link,
-        'hash': hash, 
+        'hash': server_answer_hash, 
         'v': 5.154,       
     }
     response = requests.post(path, data=payloads)
@@ -72,13 +72,13 @@ def save_photo_in_album(server_photo_link, hash, token, group_id):
     return response.json()
 
 
-def publish_photo_on_the_VK_wall(token, group_id, photo_owner_id, id, num):
+def publish_photo_on_the_VK_wall(token, group_id, photo_owner_id, id, num, message):
     path = 'https://api.vk.com/method/wall.post'
     payloads = {
         'access_token': token,
         'owner_id': -group_id,
         'from_group': 1,
-        'message': get_comic_path(f'https://xkcd.com/{num}/info.0.json')[1],
+        'message': message,
         'attachments': f'photo{photo_owner_id}_{id}',
         'v': 5.154, 
     }
@@ -93,10 +93,12 @@ def main():
     VK_token = os.environ['ACCESS_TOKEN']
     group_ID = os.environ['GROUP_ID']
     num = random.randint(1,2842)
-    download_images(get_comic_path(f'https://xkcd.com/{num}/info.0.json')[0], 'comics', f'comic{num}.png')
+    comic_paths = get_comic_path(f'https://xkcd.com/{num}/info.0.json')
+    comic_path, comment = comic_paths
+    download_images(comic_path, 'comics', f'comic{num}.png')
     server_answer = upload_photo_to_server_VK(f'comics/comic{num}.png', VK_token, group_ID)
     VK_answer = save_photo_in_album(server_answer['photo'], server_answer['hash'], VK_token, group_ID)
-    publish_photo_on_the_VK_wall(VK_token, group_ID, VK_answer['owner_id'], VK_answer['id'], num)
+    publish_photo_on_the_VK_wall(VK_token, group_ID, VK_answer['owner_id'], VK_answer['id'], num, comment)
     os.remove(f'comics/comic{num}.png')
 
 
