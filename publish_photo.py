@@ -92,7 +92,8 @@ def main():
     load_dotenv()
     VK_token = os.environ['ACCESS_TOKEN']
     group_ID = os.environ['GROUP_ID']
-    num = random.randint(1,2842)
+    last_comic_number = 2842
+    num = random.randint(1, last_comic_number)
     comic_paths = get_comic_path(f'https://xkcd.com/{num}/info.0.json')
     comic_path, comment = comic_paths
     download_images(comic_path, 'comics', f'comic{num}.png')
