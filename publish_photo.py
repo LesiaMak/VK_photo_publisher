@@ -1,6 +1,7 @@
 import requests
 import urllib3
 import os
+import sys
 from pathvalidate import sanitize_filepath
 from pathlib import Path
 import random
@@ -94,13 +95,19 @@ def main():
     GROUP_ID = os.environ['VK_GROUP_ID']
     last_comic_number = 2842
     num = random.randint(1, last_comic_number)
-    comic_paths = get_comic_path(f'https://xkcd.com/{num}/info.0.json')
-    comic_path, comment = comic_paths
-    download_images(comic_path, 'comics', f'comic{num}.png')
-    server_answer = upload_photo_to_server_VK(f'comics/comic{num}.png', VK_TOKEN, GROUP_ID)
-    vk_answer = save_photo_in_album(server_answer['photo'], server_answer['hash'], VK_TOKEN, GROUP_ID)
-    publish_photo_on_the_VK_wall(VK_TOKEN, GROUP_ID, vk_answer['owner_id'], vk_answer['id'], num, comment)
-    os.remove(f'comics/comic{num}.png')
+    try:
+        comic_paths = get_comic_path(f'https://xkcd.com/{num}/info.0.json')
+        comic_path, comment = comic_paths
+        download_images(comic_path, 'comics', f'comic{num}.png')
+        server_answer = upload_photo_to_server_VK(f'comics/comic{num}.png', VK_TOKEN, GROUP_ID)
+        vk_answer = save_photo_in_album(server_answer['photo'], server_answer['hash'], VK_TOKEN, GROUP_ID)
+        publish_photo_on_the_VK_wall(VK_TOKEN, GROUP_ID, vk_answer['owner_id'], vk_answer['id'], num, comment)
+        os.remove(f'comics/comic{num}.png')
+    except requests.HTTPError:
+        print('Страница не найдена', file=sys.stderr)
+    finally:
+        os.remove(f'comics/comic{num}.png')
+        
 
 
 if __name__ == '__main__':
