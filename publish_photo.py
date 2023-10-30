@@ -54,11 +54,11 @@ def upload_photo_to_server_VK(file_link, token, group_id):
             'photo': file,
         }
         response = requests.post(path, files=files)
-        response.raise_for_status()
+    response.raise_for_status()
     return response.json()
 
 
-def safe_photo_in_album(server_photo_link, hash, token, group_id):
+def save_photo_in_album(server_photo_link, hash, token, group_id):
     path = 'https://api.vk.com/method/photos.saveWallPhoto'
     payloads = {
         'access_token': token,
@@ -95,7 +95,7 @@ def main():
     num = random.randint(1,2842)
     download_images(get_comic_path(f'https://xkcd.com/{num}/info.0.json')[0], 'comics', f'comic{num}.png')
     server_answer = upload_photo_to_server_VK(f'comics/comic{num}.png', VK_token, group_ID)
-    VK_answer = safe_photo_in_album(server_answer['photo'], server_answer['hash'], VK_token, group_ID)
+    VK_answer = save_photo_in_album(server_answer['photo'], server_answer['hash'], VK_token, group_ID)
     publish_photo_on_the_VK_wall(VK_token, group_ID, VK_answer['owner_id'], VK_answer['id'], num)
     os.remove(f'comics/comic{num}.png')
 
