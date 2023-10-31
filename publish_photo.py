@@ -95,7 +95,6 @@ def main():
         server_answer = upload_photo_to_server_VK(Path('comics', 'comic{num}.png'), VK_TOKEN, GROUP_ID)
         vk_answer = save_photo_in_album(server_answer['photo'], server_answer['hash'], VK_TOKEN, GROUP_ID)
         publish_photo_on_the_VK_wall(VK_TOKEN, GROUP_ID, vk_answer['owner_id'], vk_answer['id'], num, comics_text['alt'])
-        os.remove(Path('comics', 'comic{num}.png'))
     except requests.HTTPError:
         print('Страница не найдена', file=sys.stderr)
     finally:
