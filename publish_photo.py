@@ -26,7 +26,6 @@ def get_image(image_url, payloads = None):
 
 
 def download_images(image_url, save_path, image_name):
-    os.makedirs(Path('.',save_path), exist_ok=True)
     filename = sanitize_filepath(os.path.join(save_path, f'{image_name}'))
     with open(filename, 'wb') as file:
         file.write(get_image(image_url).content)
@@ -95,6 +94,7 @@ def main():
     GROUP_ID = os.environ['VK_GROUP_ID']
     last_comic_number = 2842
     num = random.randint(1, last_comic_number)
+    os.makedirs(Path('.','comics'), exist_ok=True)
     try:
         comic_paths = get_comic_path(f'https://xkcd.com/{num}/info.0.json')
         comic_path, comment = comic_paths
