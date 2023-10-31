@@ -8,7 +8,6 @@ import random
 import os
 from dotenv import load_dotenv
 
-
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 def download_random_comic(path, save_path, image_name, payloads = None):
@@ -38,8 +37,10 @@ def get_server_link(token, group_id):
     response = requests.get(path, params=payloads,  verify=False)
     response.raise_for_status()
     server_answer = response.json()
+    check_errors(response)
 
-    return server_answer['response']['upload_url']
+    return server_answer
+
 
 
 def upload_photo_to_server_VK(file_link, token, group_id):
@@ -64,6 +65,8 @@ def save_photo_in_album(server_photo_link, server_answer_hash, token, group_id):
     }
     response = requests.post(path, data=payloads)
     response.raise_for_status()
+    check_errors(response)
+
     return response.json()
 
 
@@ -79,26 +82,38 @@ def publish_photo_on_the_VK_wall(token, group_id, photo_owner_id, id, message):
     }
     response = requests.post(path, data=payloads)
     response.raise_for_status()
+    check_errors(response)
+
     return response.json()
+
+def check_errors(response):
+    error_data = response.json()
+    if response.status_code == 200 and error_data['error']:
+        print(error_data['error']['error_code'], error_data['error']['error_msg'])
+
+
 
 
 
 def main():
     load_dotenv()
-    VK_TOKEN = os.environ['VK_ACCESS_TOKEN']
-    GROUP_ID = os.environ['VK_GROUP_ID']
+    #vk_token = os.environ['VK_ACCESS_TOKEN']
+    #group_id = os.environ['VK_GROUP_ID']
+    vk_token = 'vk1.a.Yw3X40OsU-P0RZppZHOnQ3B5QMpSPscMphf1e5M_XSIJb6S1eSvQx72Zi-nbpqr_xcNk4QXxsn46o5ijeG_ImukDfpp63MmKWoirQ8s_1oU4bvraA-lGmII5O7Xr-zkSCEo8eS1BXI1xFnvgzJIQNHq_1Rxxce65_NYb6ufbqv5iqByM8c7PcLebfngaAHkPH1H-fhD2ix97q8Ezp-L1pg'
+    group_id = 222791607
     last_comic_number = 2842
     num = random.randint(1, last_comic_number)
     os.makedirs(Path('.','comics'), exist_ok=True)
+    filepath = sanitize_filepath(os.path.join('comics', f'comic{num}.png'))
     try:
         comics_text = download_random_comic(f'https://xkcd.com/{num}/info.0.json', 'comics', f'comic{num}.png')
-        server_answer = upload_photo_to_server_VK(Path('comics', 'comic{num}.png'), VK_TOKEN, GROUP_ID)
-        vk_answer = save_photo_in_album(server_answer['photo'], server_answer['hash'], VK_TOKEN, GROUP_ID)
-        publish_photo_on_the_VK_wall(VK_TOKEN, GROUP_ID, vk_answer['owner_id'], vk_answer['id'], num, comics_text['alt'])
+        server_answer = upload_photo_to_server_VK(filepath, vk_token, group_id)
+        vk_answer = save_photo_in_album(server_answer['photo'], server_answer['hash'], vk_token, group_id)
+        publish_photo_on_the_VK_wall(vk_token, group_id, vk_answer['owner_id'], vk_answer['id'], num, comics_text['alt'])
     except requests.HTTPError:
         print('Страница не найдена', file=sys.stderr)
     finally:
-        os.remove(Path('comics', 'comic{num}.png'))
+        os.remove(filepath)
         
 
 if __name__ == '__main__':
