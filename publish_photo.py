@@ -10,13 +10,13 @@ from dotenv import load_dotenv
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-def download_random_comic(path, save_path, image_name, payloads = None):
-    response = requests.get(path, params=payloads,  verify=False)
+def download_random_comic(path, save_path, image_name):
+    response = requests.get(path,  verify=False)
     response.raise_for_status()
     comics_text = response.json()
     comic_path = comics_text['img']
     filename = sanitize_filepath(os.path.join(save_path, f'{image_name}'))
-    comic_response = requests.get(comic_path, params=payloads,  verify=False)
+    comic_response = requests.get(comic_path,  verify=False)
     comic_response.raise_for_status()
     with open(filename, 'wb') as file:
         file.write(comic_response.content)
@@ -97,10 +97,8 @@ def check_errors(response):
 
 def main():
     load_dotenv()
-    #vk_token = os.environ['VK_ACCESS_TOKEN']
-    #group_id = os.environ['VK_GROUP_ID']
-    vk_token = 'vk1.a.Yw3X40OsU-P0RZppZHOnQ3B5QMpSPscMphf1e5M_XSIJb6S1eSvQx72Zi-nbpqr_xcNk4QXxsn46o5ijeG_ImukDfpp63MmKWoirQ8s_1oU4bvraA-lGmII5O7Xr-zkSCEo8eS1BXI1xFnvgzJIQNHq_1Rxxce65_NYb6ufbqv5iqByM8c7PcLebfngaAHkPH1H-fhD2ix97q8Ezp-L1pg'
-    group_id = 222791607
+    vk_token = os.environ['VK_ACCESS_TOKEN']
+    group_id = os.environ['VK_GROUP_ID']
     last_comic_number = 2842
     num = random.randint(1, last_comic_number)
     os.makedirs(Path('.','comics'), exist_ok=True)
