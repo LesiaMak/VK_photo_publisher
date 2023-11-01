@@ -5,10 +5,10 @@ import sys
 from pathvalidate import sanitize_filepath
 from pathlib import Path
 import random
-import os
 from dotenv import load_dotenv
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
 
 def download_random_comic(path, save_path, image_name):
     response = requests.get(path,  verify=False)
@@ -22,10 +22,9 @@ def download_random_comic(path, save_path, image_name):
         file.write(comic_response.content)
 
     return comics_text
-    
 
 
-def get_server_link(token, group_id): 
+def get_server_link(token, group_id):
     path = 'https://api.vk.com/method/photos.getWallUploadServer'
     payloads = {
         'group_id': group_id,
@@ -40,7 +39,6 @@ def get_server_link(token, group_id):
     check_errors(server_answer)
 
     return server_answer
-
 
 
 def upload_photo_to_server_VK(file_link, token, group_id):
@@ -68,7 +66,6 @@ def save_photo_in_album(server_photo_link, server_answer_hash, token, group_id):
     response.raise_for_status()
     answer = response.json()
     check_errors(answer)
-
     return answer
 
 
@@ -80,22 +77,22 @@ def publish_photo_on_the_VK_wall(token, group_id, photo_owner_id, id, message):
         'from_group': 1,
         'message': message,
         'attachments': f'photo{photo_owner_id}_{id}',
-        'v': 5.154, 
-    }
+        'v': 5.154,
+        }
     response = requests.post(path, data=payloads)
     response.raise_for_status()
     answer = response.json()
     check_errors(answer)
-
     return answer
+
 
 def check_errors(response):
     if response['error']:
-        print('Error type ', response['error']['error_code'], response['error']['error_msg'])
+        print('Error type ',
+              response['error']['error_code'],
+              response['error']['error_msg']
+              )
         raise requests.HTTPError()
-
-
-
 
 
 def main():
@@ -104,19 +101,30 @@ def main():
     group_id = os.environ['VK_GROUP_ID']
     last_comic_number = 2842
     num = random.randint(1, last_comic_number)
-    os.makedirs(Path('.','comics'), exist_ok=True)
+    os.makedirs(Path('.', 'comics'), exist_ok=True)
     filepath = sanitize_filepath(os.path.join('comics', f'comic{num}.png'))
     try:
-        comics_text = download_random_comic(f'https://xkcd.com/{num}/info.0.json', 'comics', f'comic{num}.png')
+        comics_text = download_random_comic(f'https://xkcd.com/{num}/info.0.json',
+                                            'comics',
+                                            f'comic{num}.png'
+                                            )
         server_answer = upload_photo_to_server_VK(filepath, vk_token, group_id)
-        vk_answer = save_photo_in_album(server_answer['photo'], server_answer['hash'], vk_token, group_id)
-        publish_photo_on_the_VK_wall(vk_token, group_id, vk_answer['owner_id'], vk_answer['id'], num, comics_text['alt'])
+        vk_answer = save_photo_in_album(server_answer['photo'],
+                                        server_answer['hash'],
+                                        vk_token,
+                                        group_id
+                                        )
+        publish_photo_on_the_VK_wall(vk_token,
+                                     group_id, vk_answer['owner_id'],
+                                     vk_answer['id'],
+                                     num,
+                                     comics_text['alt']
+                                     )
     except requests.HTTPError:
         print('Ошибка', file=sys.stderr)
     finally:
         os.remove(filepath)
-        
+
 
 if __name__ == '__main__':
     main()
-
