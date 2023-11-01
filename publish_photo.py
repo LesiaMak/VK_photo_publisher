@@ -88,7 +88,7 @@ def publish_photo_on_the_VK_wall(token, group_id, photo_owner_id, id, message):
 
 def check_errors(response):
     error_data = response.json()
-    if response.status_code == 200 and error_data['error']:
+    if response.ok and error_data['error']:
         print(error_data['error']['error_code'], error_data['error']['error_msg'])
 
 
