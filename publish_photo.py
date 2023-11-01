@@ -37,7 +37,7 @@ def get_server_link(token, group_id):
     response = requests.get(path, params=payloads,  verify=False)
     response.raise_for_status()
     server_answer = response.json()
-    check_errors(response)
+    check_errors(server_answer)
 
     return server_answer
 
@@ -51,7 +51,8 @@ def upload_photo_to_server_VK(file_link, token, group_id):
         }
         response = requests.post(path, files=files)
     response.raise_for_status()
-    return response.json()
+    answer = response.json()
+    return answer
 
 
 def save_photo_in_album(server_photo_link, server_answer_hash, token, group_id):
@@ -65,9 +66,10 @@ def save_photo_in_album(server_photo_link, server_answer_hash, token, group_id):
     }
     response = requests.post(path, data=payloads)
     response.raise_for_status()
-    check_errors(response)
+    answer = response.json()
+    check_errors(answer)
 
-    return response.json()
+    return answer
 
 
 def publish_photo_on_the_VK_wall(token, group_id, photo_owner_id, id, message):
@@ -82,14 +84,14 @@ def publish_photo_on_the_VK_wall(token, group_id, photo_owner_id, id, message):
     }
     response = requests.post(path, data=payloads)
     response.raise_for_status()
-    check_errors(response)
+    answer = response.json()
+    check_errors(answer)
 
-    return response.json()
+    return answer
 
 def check_errors(response):
-    error_data = response.json()
-    if response.ok and error_data['error']:
-        print('Error type ', error_data['error']['error_code'], error_data['error']['error_msg'])
+    if response['error']:
+        print('Error type ', response['error']['error_code'], response['error']['error_msg'])
         raise requests.HTTPError()
 
 
