@@ -89,7 +89,8 @@ def publish_photo_on_the_VK_wall(token, group_id, photo_owner_id, id, message):
 def check_errors(response):
     error_data = response.json()
     if response.ok and error_data['error']:
-        print(error_data['error']['error_code'], error_data['error']['error_msg'])
+        print('Error type ', error_data['error']['error_code'], error_data['error']['error_msg'])
+        raise requests.HTTPError()
 
 
 
@@ -109,7 +110,7 @@ def main():
         vk_answer = save_photo_in_album(server_answer['photo'], server_answer['hash'], vk_token, group_id)
         publish_photo_on_the_VK_wall(vk_token, group_id, vk_answer['owner_id'], vk_answer['id'], num, comics_text['alt'])
     except requests.HTTPError:
-        print('Страница не найдена', file=sys.stderr)
+        print('Ошибка', file=sys.stderr)
     finally:
         os.remove(filepath)
         
